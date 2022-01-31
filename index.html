@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Weather Map API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/weather-map.css">
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.css' rel='stylesheet'/>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+</head>
+<body>
+<!--TOP HEADER-->
+<header id="top-bar">
+    <h1>Interactive Five-Day Forecast</h1>
+    <h3>Current City:&nbsp; </h3>
+    <h4 id="current-city">Boulder, CO</h4>
+</header>
+
+<!--THE SEARCH FORM-->
+<div id="search-bar">
+    <form onsubmit="return false" id="submit-form">
+        <label for="search">Place:&nbsp;</label>
+        <input type="text" id="search" placeholder="enter a city">
+        <input type="submit" value="search" onclick="getWeather()">
+    </form>
+</div>
+
+<!--    FORECASTS WILL GO HERE-->
+<div id="forecasts"></div>
+
+<!--    THE MAP-->
+<figure>
+    <div id="map"></div>
+    <figcaption>
+        drag pin to update map and weather forecast
+    </figcaption>
+</figure>
+<!--    FOOTER-->
+<div id="footer">
+    <footer>
+        <p>Copyright &copy;2022 Nelson Delpozo Sirius Cohort</p>
+    </footer>
+</div>
+
+<!--API SCRIPT TAGS-->
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.js'></script>
+<script src="js/mapbox-geocoder-utils.js"></script>
+
+<!--CUSTOM SCRIPTS-->
+<script>
+    let searchBox = document.getElementById('search');
+    let currentCity = document.getElementById('current-city');
+    let forecastGrid = document.getElementById('forecasts');
+    let form = document.getElementById('submit-form');
+    initial();
+
+    // // THE MAP
+    const accessToken = 'pk.eyJ1IjoibmVsZGVscG96byIsImEiOiJja3licjBodWcwaTU0Mm9wbTlreHgybXJ6In0.Y0YKAs4Kl1_KoKhZ3IUiJA';
+    mapboxgl.accessToken = accessToken;
+    let map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/satellite-streets-v11',
+        zoom: 8,
+        center: [-105.2705, 40.0150]
+    });
+
+    const marker = new mapboxgl.Marker({
+        draggable: true
+    }).setLngLat([-105.2705, 40.0150])
+        .addTo(map);
+
+    // RE-CENTERS MAP WHEN YOU MOVE THE PIN
+    let newSpot = "";
+    function onDragEnd() {
+        const lngLat = marker.getLngLat();
+        console.log(lngLat.lng);
+        console.log(lngLat.lat);
+        map.panTo([lngLat.lng, lngLat.lat]);
+        reverseGeocode({lng: lngLat.lng, lat: lngLat.lat}, accessToken).then(function (results) {
+            newSpot = results.substr(results.indexOf(',') + 2);
+            console.log(newSpot);
+            console.log(typeof newSpot)
+            $.get("https://api.openweathermap.org/data/2.5/forecast", {
+                APPID: "92f38058292f35435f6f74b0304dcfd4",
+                q: newSpot,
+                units: "imperial"
+            }).done(function (data) {
+                let forecast = [];
+                let dayOne = {};
+                let dayTwo = {};
+                let dayThree = {};
+                let dayFour = {};
+                let dayFive = {};
+
+                // ASSIGN THE RESULTS TO DAY OBJECTS, PUSH DAYS TO FORECAST ARRAY
+                dayOne.date = data.list[6].dt_txt.substring(0, 10);
+                dayOne.temp = data.list[6].main.temp_max;
+                dayOne.icon = data.list[6].weather[0].icon;
+                dayOne.iconURL = `http://openweathermap.org/img/wn/${dayOne.icon}@2x.png`
+                dayOne.description = data.list[6].weather[0].description;
+                dayOne.humidity = data.list[6].main.humidity;
+                dayOne.wind = data.list[6].wind.speed;
+                dayOne.pressure = data.list[6].main.pressure;
+                forecast.push(dayOne);
+
+                dayTwo.date = data.list[14].dt_txt.substring(0, 10);
+                dayTwo.temp = data.list[14].main.temp_max;
+                dayTwo.icon = data.list[14].weather[0].icon;
+                dayTwo.iconURL = `http://openweathermap.org/img/wn/${dayTwo.icon}@2x.png`
+                dayTwo.description = data.list[14].weather[0].description;
+                dayTwo.humidity = data.list[14].main.humidity;
+                dayTwo.wind = data.list[14].wind.speed;
+                dayTwo.pressure = data.list[14].main.pressure;
+                forecast.push(dayTwo);
+
+                dayThree.date = data.list[22].dt_txt.substring(0, 10);
+                dayThree.temp = data.list[22].main.temp_max;
+                dayThree.icon = data.list[22].weather[0].icon;
+                dayThree.iconURL = `http://openweathermap.org/img/wn/${dayThree.icon}@2x.png`
+                dayThree.description = data.list[22].weather[0].description;
+                dayThree.humidity = data.list[22].main.humidity;
+                dayThree.wind = data.list[22].wind.speed;
+                dayThree.pressure = data.list[22].main.pressure;
+                forecast.push(dayThree);
+
+                dayFour.date = data.list[30].dt_txt.substring(0, 10);
+                dayFour.temp = data.list[30].main.temp_max;
+                dayFour.icon = data.list[30].weather[0].icon;
+                dayFour.iconURL = `http://openweathermap.org/img/wn/${dayFour.icon}@2x.png`
+                dayFour.description = data.list[30].weather[0].description;
+                dayFour.humidity = data.list[30].main.humidity;
+                dayFour.wind = data.list[30].wind.speed;
+                dayFour.pressure = data.list[30].main.pressure;
+                forecast.push(dayFour);
+
+                dayFive.date = data.list[38].dt_txt.substring(0, 10);
+                dayFive.temp = data.list[38].main.temp_max;
+                dayFive.icon = data.list[38].weather[0].icon;
+                dayFive.iconURL = `http://openweathermap.org/img/wn/${dayFive.icon}@2x.png`
+                dayFive.description = data.list[38].weather[0].description;
+                dayFive.humidity = data.list[38].main.humidity;
+                dayFive.wind = data.list[38].wind.speed;
+                dayFive.pressure = data.list[38].main.pressure;
+                forecast.push(dayFive);
+
+                // HTML FOR THE FORECAST GRID
+                forecastGrid.innerHTML = '<div class=day><div class="date">' + forecast[0].date + '</div><div class="temp">' + forecast[0].temp + '&deg;F</div><div class="icon"><img src="' + forecast[0].iconURL + '"></div><div class="description">Description: ' + forecast[0].description + '</div><hr><div class="humidity">Humidity: ' + forecast[0].humidity + '</div><hr><div class="wind">Wind: ' + forecast[0].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[0].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[1].date + '</div><div class="temp">' + forecast[1].temp + '&deg;F</div><div class="icon"><img src="' + forecast[1].iconURL + '"></div><div class="description">Description: ' + forecast[1].description + '</div><hr><div class="humidity">Humidity: ' + forecast[1].humidity + '</div><hr><div class="wind">Wind: ' + forecast[1].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[1].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[2].date + '</div><div class="temp">' + forecast[2].temp + '&deg;F</div><div class="icon"><img src="' + forecast[2].iconURL + '"></div><div class="description">Description: ' + forecast[2].description + '</div><hr><div class="humidity">Humidity: ' + forecast[2].humidity + '</div><hr><div class="wind">Wind: ' + forecast[2].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[2].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[3].date + '</div><div class="temp">' + forecast[3].temp + '&deg;F</div><div class="icon"><img src="' + forecast[3].iconURL + '"></div><div class="description">Description: ' + forecast[3].description + '</div><hr><div class="humidity">Humidity: ' + forecast[3].humidity + '</div><hr><div class="wind">Wind: ' + forecast[3].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[3].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[4].date + '</div><div class="temp">' + forecast[4].temp + '&deg;F</div><div class="icon"><img src="' + forecast[4].iconURL + '"></div><div class="description">Description: ' + forecast[4].description + '</div><hr><div class="humidity">Humidity: ' + forecast[4].humidity + '</div><hr><div class="wind">Wind: ' + forecast[4].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[4].pressure + '</div></div>';
+            })
+        });
+    }
+    marker.on('dragend', onDragEnd);
+    // STILL NEED TO ADD NEW WEATHER FORECAST AFTER PIN DROP
+
+
+    // RE-CENTER THE MAP ON SEARCH
+    function getWeather(q) {
+        currentCity.innerText = searchBox.value;
+        geocode(searchBox.value, accessToken).then(function (result) {
+            console.log(result);
+            console.log(searchBox.value)
+            map.setCenter(result);
+            map.setZoom(10);
+            let markers = document.querySelectorAll('.mapboxgl-marker');
+            const marker = new mapboxgl.Marker({
+            }).setLngLat(result)
+                .addTo(map);
+            markers[1].remove();
+        });
+        // AND GET THE FORECAST ALONG WITH IT
+        $.get("https://api.openweathermap.org/data/2.5/forecast", {
+            APPID: "92f38058292f35435f6f74b0304dcfd4",
+            q: searchBox.value,
+            units: "imperial"
+        }).done(function (data) {
+            let forecast = [];
+            let dayOne = {};
+            let dayTwo = {};
+            let dayThree = {};
+            let dayFour = {};
+            let dayFive = {};
+
+            // ASSIGN THE RESULTS TO DAY OBJECTS, PUSH DAYS TO FORECAST ARRAY
+            dayOne.date = data.list[6].dt_txt.substring(0, 10);
+            dayOne.temp = data.list[6].main.temp_max;
+            dayOne.icon = data.list[6].weather[0].icon;
+            dayOne.iconURL = `http://openweathermap.org/img/wn/${dayOne.icon}@2x.png`
+            dayOne.description = data.list[6].weather[0].description;
+            dayOne.humidity = data.list[6].main.humidity;
+            dayOne.wind = data.list[6].wind.speed;
+            dayOne.pressure = data.list[6].main.pressure;
+            forecast.push(dayOne);
+
+            dayTwo.date = data.list[14].dt_txt.substring(0, 10);
+            dayTwo.temp = data.list[14].main.temp_max;
+            dayTwo.icon = data.list[14].weather[0].icon;
+            dayTwo.iconURL = `http://openweathermap.org/img/wn/${dayTwo.icon}@2x.png`
+            dayTwo.description = data.list[14].weather[0].description;
+            dayTwo.humidity = data.list[14].main.humidity;
+            dayTwo.wind = data.list[14].wind.speed;
+            dayTwo.pressure = data.list[14].main.pressure;
+            forecast.push(dayTwo);
+
+            dayThree.date = data.list[22].dt_txt.substring(0, 10);
+            dayThree.temp = data.list[22].main.temp_max;
+            dayThree.icon = data.list[22].weather[0].icon;
+            dayThree.iconURL = `http://openweathermap.org/img/wn/${dayThree.icon}@2x.png`
+            dayThree.description = data.list[22].weather[0].description;
+            dayThree.humidity = data.list[22].main.humidity;
+            dayThree.wind = data.list[22].wind.speed;
+            dayThree.pressure = data.list[22].main.pressure;
+            forecast.push(dayThree);
+
+            dayFour.date = data.list[30].dt_txt.substring(0, 10);
+            dayFour.temp = data.list[30].main.temp_max;
+            dayFour.icon = data.list[30].weather[0].icon;
+            dayFour.iconURL = `http://openweathermap.org/img/wn/${dayFour.icon}@2x.png`
+            dayFour.description = data.list[30].weather[0].description;
+            dayFour.humidity = data.list[30].main.humidity;
+            dayFour.wind = data.list[30].wind.speed;
+            dayFour.pressure = data.list[30].main.pressure;
+            forecast.push(dayFour);
+
+            dayFive.date = data.list[38].dt_txt.substring(0, 10);
+            dayFive.temp = data.list[38].main.temp_max;
+            dayFive.icon = data.list[38].weather[0].icon;
+            dayFive.iconURL = `http://openweathermap.org/img/wn/${dayFive.icon}@2x.png`
+            dayFive.description = data.list[38].weather[0].description;
+            dayFive.humidity = data.list[38].main.humidity;
+            dayFive.wind = data.list[38].wind.speed;
+            dayFive.pressure = data.list[38].main.pressure;
+            forecast.push(dayFive);
+
+            // HTML FOR THE FORECAST GRID
+            forecastGrid.innerHTML = '<div class=day><div class="date">' + forecast[0].date + '</div><div class="temp">' + forecast[0].temp + '&deg;F</div><div class="icon"><img src="' + forecast[0].iconURL + '"></div><div class="description">Description: ' + forecast[0].description + '</div><hr><div class="humidity">Humidity: ' + forecast[0].humidity + '</div><hr><div class="wind">Wind: ' + forecast[0].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[0].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[1].date + '</div><div class="temp">' + forecast[1].temp + '&deg;F</div><div class="icon"><img src="' + forecast[1].iconURL + '"></div><div class="description">Description: ' + forecast[1].description + '</div><hr><div class="humidity">Humidity: ' + forecast[1].humidity + '</div><hr><div class="wind">Wind: ' + forecast[1].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[1].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[2].date + '</div><div class="temp">' + forecast[2].temp + '&deg;F</div><div class="icon"><img src="' + forecast[2].iconURL + '"></div><div class="description">Description: ' + forecast[2].description + '</div><hr><div class="humidity">Humidity: ' + forecast[2].humidity + '</div><hr><div class="wind">Wind: ' + forecast[2].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[2].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[3].date + '</div><div class="temp">' + forecast[3].temp + '&deg;F</div><div class="icon"><img src="' + forecast[3].iconURL + '"></div><div class="description">Description: ' + forecast[3].description + '</div><hr><div class="humidity">Humidity: ' + forecast[3].humidity + '</div><hr><div class="wind">Wind: ' + forecast[3].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[3].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[4].date + '</div><div class="temp">' + forecast[4].temp + '&deg;F</div><div class="icon"><img src="' + forecast[4].iconURL + '"></div><div class="description">Description: ' + forecast[4].description + '</div><hr><div class="humidity">Humidity: ' + forecast[4].humidity + '</div><hr><div class="wind">Wind: ' + forecast[4].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[4].pressure + '</div></div>';
+        });
+        form.reset();
+    }
+
+    // LOAD THE INITIAL FORECAST
+    function initial(q) {
+        $.get("https://api.openweathermap.org/data/2.5/forecast", {
+            APPID: "92f38058292f35435f6f74b0304dcfd4",
+            q: "Lafayette, Colorado 80023, United States",
+            units: "imperial"
+        }).done(function (data) {
+            let forecast = [];
+            let dayOne = {};
+            let dayTwo = {};
+            let dayThree = {};
+            let dayFour = {};
+            let dayFive = {};
+
+            dayOne.date = data.list[6].dt_txt.substring(0, 10);
+            dayOne.temp = data.list[6].main.temp_max;
+            dayOne.icon = data.list[6].weather[0].icon;
+            dayOne.iconURL = `http://openweathermap.org/img/wn/${dayOne.icon}@2x.png`
+            dayOne.description = data.list[6].weather[0].description;
+            dayOne.humidity = data.list[6].main.humidity;
+            dayOne.wind = data.list[6].wind.speed;
+            dayOne.pressure = data.list[6].main.pressure;
+            forecast.push(dayOne);
+
+            dayTwo.date = data.list[14].dt_txt.substring(0, 10);
+            dayTwo.temp = data.list[14].main.temp_max;
+            dayTwo.icon = data.list[14].weather[0].icon;
+            dayTwo.iconURL = `http://openweathermap.org/img/wn/${dayTwo.icon}@2x.png`
+            dayTwo.description = data.list[14].weather[0].description;
+            dayTwo.humidity = data.list[14].main.humidity;
+            dayTwo.wind = data.list[14].wind.speed;
+            dayTwo.pressure = data.list[14].main.pressure;
+            forecast.push(dayTwo);
+
+            dayThree.date = data.list[22].dt_txt.substring(0, 10);
+            dayThree.temp = data.list[22].main.temp_max;
+            dayThree.icon = data.list[22].weather[0].icon;
+            dayThree.iconURL = `http://openweathermap.org/img/wn/${dayThree.icon}@2x.png`
+            dayThree.description = data.list[22].weather[0].description;
+            dayThree.humidity = data.list[22].main.humidity;
+            dayThree.wind = data.list[22].wind.speed;
+            dayThree.pressure = data.list[22].main.pressure;
+            forecast.push(dayThree);
+
+            dayFour.date = data.list[30].dt_txt.substring(0, 10);
+            dayFour.temp = data.list[30].main.temp_max;
+            dayFour.icon = data.list[30].weather[0].icon;
+            dayFour.iconURL = `http://openweathermap.org/img/wn/${dayFour.icon}@2x.png`
+            dayFour.description = data.list[30].weather[0].description;
+            dayFour.humidity = data.list[30].main.humidity;
+            dayFour.wind = data.list[30].wind.speed;
+            dayFour.pressure = data.list[30].main.pressure;
+            forecast.push(dayFour);
+
+            dayFive.date = data.list[38].dt_txt.substring(0, 10);
+            dayFive.temp = data.list[38].main.temp_max;
+            dayFive.icon = data.list[38].weather[0].icon;
+            dayFive.iconURL = `http://openweathermap.org/img/wn/${dayFive.icon}@2x.png`
+            dayFive.description = data.list[38].weather[0].description;
+            dayFive.humidity = data.list[38].main.humidity;
+            dayFive.wind = data.list[38].wind.speed;
+            dayFive.pressure = data.list[38].main.pressure;
+            forecast.push(dayFive);
+
+            forecastGrid.innerHTML = '<div class=day><div class="date">' + forecast[0].date + '</div><div class="temp">' + forecast[0].temp + '&deg;F</div><div class="icon"><img src="' + forecast[0].iconURL + '"></div><div class="description">Description: ' + forecast[0].description + '</div><hr><div class="humidity">Humidity: ' + forecast[0].humidity + '</div><hr><div class="wind">Wind: ' + forecast[0].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[0].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[1].date + '</div><div class="temp">' + forecast[1].temp + '&deg;F</div><div class="icon"><img src="' + forecast[1].iconURL + '"></div><div class="description">Description: ' + forecast[1].description + '</div><hr><div class="humidity">Humidity: ' + forecast[1].humidity + '</div><hr><div class="wind">Wind: ' + forecast[1].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[1].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[2].date + '</div><div class="temp">' + forecast[2].temp + '&deg;F</div><div class="icon"><img src="' + forecast[2].iconURL + '"></div><div class="description">Description: ' + forecast[2].description + '</div><hr><div class="humidity">Humidity: ' + forecast[2].humidity + '</div><hr><div class="wind">Wind: ' + forecast[2].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[2].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[3].date + '</div><div class="temp">' + forecast[3].temp + '&deg;F</div><div class="icon"><img src="' + forecast[3].iconURL + '"></div><div class="description">Description: ' + forecast[3].description + '</div><hr><div class="humidity">Humidity: ' + forecast[3].humidity + '</div><hr><div class="wind">Wind: ' + forecast[3].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[3].pressure + '</div></div>' + '<div class=day><div class="date">' + forecast[4].date + '</div><div class="temp">' + forecast[4].temp + '&deg;F</div><div class="icon"><img src="' + forecast[4].iconURL + '"></div><div class="description">Description: ' + forecast[4].description + '</div><hr><div class="humidity">Humidity: ' + forecast[4].humidity + '</div><hr><div class="wind">Wind: ' + forecast[4].wind + '</div><hr><div class="pressure">Pressure: ' + forecast[4].pressure + '</div></div>';
+        });
+    }
+
+    // END OF SCRIPTS
+</script>
+</body>
+</html>
