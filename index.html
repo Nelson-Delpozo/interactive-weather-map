@@ -75,6 +75,7 @@
 
     // RE-CENTERS MAP WHEN YOU MOVE THE PIN
     let newSpot = "";
+
     function onDragEnd() {
         const lngLat = marker.getLngLat();
         console.log(lngLat.lng);
@@ -152,6 +153,7 @@
             })
         });
     }
+
     marker.on('dragend', onDragEnd);
     // STILL NEED TO ADD NEW WEATHER FORECAST AFTER PIN DROP
 
@@ -165,8 +167,7 @@
             map.setCenter(result);
             map.setZoom(10);
             let markers = document.querySelectorAll('.mapboxgl-marker');
-            const marker = new mapboxgl.Marker({
-            }).setLngLat(result)
+            const marker = new mapboxgl.Marker({}).setLngLat(result)
                 .addTo(map);
             markers[1].remove();
         });

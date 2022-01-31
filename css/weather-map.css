@@ -1,14 +1,12 @@
-*{
+* {
     font-family: 'VT323', monospace;
     font-size: 1.25rem;
 }
 
-
-body{
-    background-image: url("/img/rain.webp");
+body {
+    background-image: url("/img/pexels-photo-1049853.jpeg");
     background-attachment: fixed;
 }
-
 
 #top-bar {
     display: flex;
@@ -29,7 +27,7 @@ body{
     align-items: center;
 }
 
-#top-bar h1{
+#top-bar h1 {
     margin: auto 0;
 }
 
@@ -40,7 +38,8 @@ body{
     background-color: #217591;
     border-radius: 5px;
 }
-#search-bar form{
+
+#search-bar form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -108,30 +107,34 @@ hr {
     margin-top: 100px;
 }
 
-figure{
+figure {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-@media screen and (min-width: 768px){
-    .day{
+@media screen and (min-width: 768px) {
+    .day {
         width: 125px;
     }
-    #search-bar form{
+
+    #search-bar form {
         display: block;
     }
 }
-@media screen and (min-width: 992px){
-    .day{
+
+@media screen and (min-width: 992px) {
+    .day {
         width: 150px;
     }
 }
-@media screen and (min-width: 1200px){
-    .day{
+
+@media screen and (min-width: 1200px) {
+    .day {
         width: 225px;
     }
-    *{
+
+    * {
         font-size: 1.5rem;
     }
 }
