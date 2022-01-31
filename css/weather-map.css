@@ -4,7 +4,7 @@
 }
 
 body {
-    background-image: url("/img/pexels-photo-1049853.jpeg");
+    background-image: url("./img/pexels-photo-1049853.jpeg");
     background-attachment: fixed;
 }
 
