@@ -4,7 +4,7 @@
 }
 
 body {
-    background-image: url("../img/pexels-photo-1049853.jpeg");
+    background-image: url("/img/pexels-kaique-rocha-125510.jpeg");
     background-attachment: fixed;
 }
 
@@ -98,7 +98,6 @@ hr {
     border-radius: 10px;
     border: 5px solid #217591;
     box-shadow: 5px 5px 5px #217591;
-
 }
 
 #footer {
@@ -138,3 +137,5 @@ figure {
         font-size: 1.5rem;
     }
 }
+
+
