@@ -4,7 +4,7 @@
 }
 
 body {
-    background-image: url("/img/bg-weather.jpeg");
+    background-image: url("../img/bg-weather.jpeg");
     background-attachment: fixed;
 }
 
@@ -64,37 +64,37 @@ body {
 }
 
 .overcast {
-    background-image: url("/img/clouds.jpeg");
+    background-image: url("../img/clouds.jpeg");
     background-size: cover;
 }
 
 .few {
-    background-image: url("/img/fewclouds.jpeg");
+    background-image: url("../img/fewclouds.jpeg");
     background-size: cover;
 }
 
 .scattered {
-    background-image: url("/img/scatteredclouds.jpeg");
+    background-image: url("../img/scatteredclouds.jpeg");
     background-size: cover;
 }
 
 .clear {
-    background-image: url("/img/istockphoto-825778252-170667a.jpeg");
+    background-image: url("../img/istockphoto-825778252-170667a.jpeg");
     background-size: cover;
 }
 
 .snow {
-    background-image: url("/img/snowgif.gif");
+    background-image: url("../img/snowgif.gif");
     background-size: cover;
 }
 
 .nasty {
-    background-image: url("/img/clouds.jpeg");
+    background-image: url("../img/clouds.jpeg");
     background-size: cover;
 }
 
 .rain {
-    background-image: url("/img/raingif.gif");
+    background-image: url("../img/raingif.gif");
     background-size: cover;
 }
 
